@@ -42,20 +42,25 @@
                                             <label for="uacc_email">Email</label>
                                         </div>
                                     </div>
-                                    <?php if (empty($user_info)) { ?>
+                                    <?php if (!empty($user_info) && $user_info['uacc_id'] != "") { ?>
                                         <div class="row">
-                                            <div class="input-field col s12">
-                                                <input id="passwordmain" name="passwordmain" type="password" class="validate">
-                                                <label for="passwordmain">Password</label>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="input-field col s12">
-                                                <input id="inputPasswordConfirm" name="inputPasswordConfirm" type="password" class="validate">
-                                                <label for="inputPasswordConfirm">Confirm Password</label>
-                                            </div>
-                                        </div>
+                                            <div class="col s12">
+                                                <input id="change_password" name="change_password" type="checkbox" class="validate" value="1">
+                                                <label for="change_password">Change Password </label></div>
+                                        </div> 
                                     <?php } ?>
+                                    <div class="row">
+                                        <div class="input-field col s12">
+                                            <input id="passwordmain" name="passwordmain" type="password" class="validate">
+                                            <label for="passwordmain">Password</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="input-field col s12">
+                                            <input id="inputPasswordConfirm" name="inputPasswordConfirm" type="password" class="validate">
+                                            <label for="inputPasswordConfirm">Confirm Password</label>
+                                        </div>
+                                    </div>
                                     <div class="row">
                                         <div class="input-field col s12">
                                             <input id="mobile_no" name="mobile_no" type="text" class="validate" value="<?php echo (!empty($user_info) && $user_info['mobile_no'] != "") ? $user_info['mobile_no'] : ''; ?>">
@@ -68,7 +73,7 @@
                                             <label for="landline_no">Landline No.</label></div>
                                     </div> 
                                     <label for="">User Type</label>
-                                    <div class="row input-field col s12">
+                                    <div class="row col s12">
                                         <input name="user_type" type="radio" id="sub_admin" value="2" <?php echo (!empty($user_info) && $user_info['uacc_group_fk'] == 2) ? 'checked' : ''; ?> />
                                         <label for="sub_admin">Sub Admin</label>
                                         <input name="user_type" type="radio" id="ad_client" value="3" <?php echo (!empty($user_info) && $user_info['uacc_group_fk'] == 3) ? 'checked' : ''; ?> />

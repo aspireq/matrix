@@ -95,20 +95,15 @@ class Auth extends CI_Controller {
     }
 
     function forgot_password() {
-        $this->data['message'] = (!isset($this->data['message'])) ? $this->session->flashdata('message') : $this->data['message'];
-        $this->data = $this->include_files();
-        $this->load->view('forgot_password', $this->data);
-    }
-
-    function forgotten_password() {
         if ($this->input->post()) {
             $this->load->model('demo_auth_model');
             $this->demo_auth_model->forgotten_password();
         }
         $this->data['message'] = (!isset($this->data['message'])) ? $this->session->flashdata('message') : $this->data['message'];
         $this->data = $this->include_files();
-        $this->load->view('forgotten_password', $this->data);
+        $this->load->view('forgot_password', $this->data);
     }
+
 
     function manual_reset_forgotten_password($user_id = FALSE, $token = FALSE) {
         // If the 'Change Forgotten Password' form has been submitted, then update the users password.
@@ -152,11 +147,11 @@ class Auth extends CI_Controller {
             $user_data['uacc_active'] = 1;
         } else if ($verification_type == "mobile_verification") {
             $user_data['ucc_mobile_verified'] = 1;
-        } else if($verification_type == "suspend_user") {
-            $userinfo = $this->Common_model->select_where_row('user_accounts',array('uacc_id' => $user_id));
-            if($userinfo->uacc_suspend == 1) {
+        } else if ($verification_type == "suspend_user") {
+            $userinfo = $this->Common_model->select_where_row('user_accounts', array('uacc_id' => $user_id));
+            if ($userinfo->uacc_suspend == 1) {
                 $user_data['uacc_suspend'] = 0;
-            }else {
+            } else {
                 $user_data['uacc_suspend'] = 1;
             }
         }

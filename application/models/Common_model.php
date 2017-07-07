@@ -7,7 +7,7 @@ class Common_model extends CI_Model {
 
     public function &__get($key) {
         $CI = & get_instance();
-        return $CI->$key;
+        return $CI->$key; 
     }
 
     function select_all($tbl) {

@@ -26,6 +26,6 @@ class Admin_model extends CI_Model {
         $this->datatables->where('user_id', $user_id);
         $this->datatables->where('status', 1);
         return $this->datatables->generate();
-    }
+    } 
 
 }

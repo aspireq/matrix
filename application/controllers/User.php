@@ -57,6 +57,12 @@ class User extends CI_Controller {
             if ($this->input->post('edit_id')) {
                 $this->Common_model->select_update('user_accounts', array('uacc_group_fk' => $this->input->post('user_type')), array('uacc_id' => $this->input->post('edit_id')));
                 $this->Common_model->select_update('demo_user_profiles', array('landline_no' => $this->input->post('landline_no'), 'mobile_no' => $this->input->post('mobile_no')), array('upro_uacc_fk' => $this->input->post('edit_id')));
+
+                if ($this->input->post('change_password') == 1) {
+                    echo "11111";
+                    die();
+                }
+
                 $this->session->set_flashdata('message', "User Information saved successfully");
                 $this->data['error_class'] = 'alert-success';
             } else {

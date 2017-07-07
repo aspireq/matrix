@@ -7,7 +7,7 @@
             <div class="row">
                 <?php echo $sidebar; ?>
                 <div class="sb2-2">
-                    <div class="sb2-2-2">
+                    <div class="sb2-2-2">  
                         <ul>
                             <li><a href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
                             </li>
@@ -15,7 +15,7 @@
                             </li>
                         </ul>
                     </div>
-<!--                    <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#verification_modal">Open Modal</button>-->
+                    <!--                    <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#verification_modal">Open Modal</button>-->
                     <div class="sb2-2-3">
                         <div class="row">
                             <div class="col-md-12">
@@ -192,17 +192,31 @@
                 );
             });
             function user_verification(user_id, verification_type) {
-                $.ajax({
-                    url: "<?php echo base_url(); ?>auth/user_verification/",
-                    type: "POST",
-                    data: {user_id: user_id, verification_type: verification_type},
-                    dataType: "JSON",
-                    success: function (data)
-                    {
-                        reload_table();
-                    }
-                });
-
+                var x;
+                if (verification_type == "email_verification") {
+                    var user_message = "Are you sure you want to verify this email address";
+                } else if (verification_type == "suspend_user") {
+                    var user_message = "Are you sure you want to update suspend status for this user";
+                } else if (verification_type == "mobile_verification") {
+                    var user_message = "Are you sure you want to verify this mobile no for this user";
+                }
+                if (confirm(user_message) == true) {
+                    x = "ok";
+                } else {
+                    x = "cancel";
+                }
+                if (x == "ok") {
+                    $.ajax({
+                        url: "<?php echo base_url(); ?>auth/user_verification/",
+                        type: "POST",
+                        data: {user_id: user_id, verification_type: verification_type},
+                        dataType: "JSON",
+                        success: function (data)
+                        {
+                            reload_table();
+                        }
+                    });
+                }
             }
             function reload_table() {
                 userslist.ajax.reload(null, false);

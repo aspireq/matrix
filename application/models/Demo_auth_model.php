@@ -201,8 +201,16 @@ class Demo_auth_model extends CI_Model {
             // Save any public status or error messages (Whilst suppressing any admin messages) to CI's flash session data.
             $this->session->set_flashdata('message', $this->flexi_auth->get_messages());
 
-            // Redirect user.
-            redirect('auth/forgotten_password');
+            $mystring = $this->flexi_auth->get_messages();
+            $findme = 'has been sent to reset';
+            $pos = strpos($mystring, $findme);
+            if ($pos === false) {
+                
+            } else {
+                $this->session->set_flashdata('mail_sent', 1);
+            }
+            return true;
+           // redirect('auth/forgot_password');
         } else {
             // Set validation errors.
             $this->data['message'] = validation_errors('<p class="error_msg">', '</p>');
