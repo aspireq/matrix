@@ -7,7 +7,7 @@ class Common_model extends CI_Model {
 
     public function &__get($key) {
         $CI = & get_instance();
-        return $CI->$key; 
+        return $CI->$key;
     }
 
     function select_all($tbl) {
@@ -46,4 +46,54 @@ class Common_model extends CI_Model {
         return $this->db->insert_id();
     }
 
+    function get_matrixuser($user_id, $plan_id) {
+        $plan_info = $this->select_where_row('matrix_plans', array('id' => $plan_id));
+        $get_level = $this->select_where('user_accounts', array('plan' => $plan_id));
+        $get_user = '';
+        $commission_percentage = '';
+        foreach ($get_level as $user) {
+            if ($get_user == "") {
+                $get_count = $this->select_where('user_commission', array('user_id' => $user->uacc_id));
+                if (count($get_count) < 4) {
+                    $commission_percentage = 20;
+                } else if (count($get_count) < 16) {
+                    $commission_percentage = 20;
+                } else if (count($get_count) < 64) {
+                    $commission_percentage = 5;
+                } else if (count($get_count) < 256) {
+                    $commission_percentage = 5;
+                }
+                if (count($get_count) == 340) {
+                    $current_level = $this->db->get_where('user_accounts', array('uacc_id' => $user->uacc_id))->row();
+                    $this->select_update('user_accounts', array('level' => $current_level->level + 1), array('uacc_id' => $user->uacc_id));
+                }
+                if (count($get_count) < 340) {
+                    $get_user = $user->uacc_id;
+                }
+            }
+        }
+
+        if ($get_user != "") {
+            $commission = ($plan_info->plan_amount * $commission_percentage) / 100;
+            $commission_data = array(
+                'user_id' => $get_user,
+                'for_user_id' => $user_id,
+                'commission_amount' => $commission,
+                'plan_id' => $plan_id
+            );
+            $this->insert('user_commission', $commission_data);
+            $userinfo = $this->select_where('user_accounts', array('uacc_id' => $get_user));
+            $final_earnings = ($userinfo->earnings) + 1500;
+            
+            $this->select_update('user_accounts', array('earnings' => $final_earnings), array('uacc_id' => $get_user));
+            echo $this->db->last_query();die();
+        } else {
+            echo "All users are full!";
+            die();
+        }
+        return true;
+    }
+
 }
+
+//SELECT `uacc_id`,`uacc_group_fk`,`uacc_email`,`uacc_username`,`plan`,`amount_paid`,`level`,`earnings` FROM `user_accounts` 

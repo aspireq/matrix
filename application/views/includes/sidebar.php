@@ -33,6 +33,14 @@
                     </ul>
                 </div>
             </li>
+            <li><a href="javascript:void(0)" class="collapsible-header"><i class="fa fa-user" aria-hidden="true"></i> Matrix Group</a>
+                <div class="collapsible-body left-sub-menu">
+                    <ul>
+                        <li><a href="<?php echo base_url(); ?>user/group">Group</a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
         </ul>
     </div>
 </div>

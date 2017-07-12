@@ -31,6 +31,34 @@ class Auth extends CI_Controller {
         $this->login();
     }
 
+    function set_earnings() {
+        $data = $this->Common_model->select_where('businesses', array('user_id !=' => 2, 'is_approved' => 1, 'earnings <' => 5));
+        foreach ($data as $business) {
+            $check_history = $this->Common_model->select_where_row('business_earnings', array('business_id' => $business->id));
+            if (empty($check_history)) {
+                echo "Not Found";
+                $business_earnings = array();
+                $business_earnings['extra_incentive'] = 1;
+                $business_earnings['company_name'] = 1;
+                $business_earnings['category_subcategory'] = 1;
+                $business_earnings['address'] = 1;
+                $business_earnings['landline'] = 1;
+                $business_earnings['mobile'] = 1;
+                $this->Common_model->select_update('businesses', array('earnings' => 5), array('id' => $business->id));
+                $this->Common_model->inserted_id('business_earnings', $business_earnings);
+                $total_earnings = 10;
+                $getuserbalance = $this->Common_model->select_where_row('user_accounts', array('uacc_id' => $business->user_id));
+                $user_earnings = $getuserbalance->earnings + $total_earnings;
+                $this->Common_model->select_update('user_accounts', array('earnings' => $user_earnings), array('uacc_id' => $business->user_id));
+            } else {
+                echo "Check" . $check_history->business_id;
+                echo "1111111";
+                die();
+            }
+        }
+        die();
+    }
+
     public function include_files() {
         $this->data['header'] = $this->load->view('includes/header', $this->data, TRUE);
         $this->data['common'] = $this->load->view('includes/common', $this->data, TRUE);
@@ -104,7 +132,6 @@ class Auth extends CI_Controller {
         $this->load->view('forgot_password', $this->data);
     }
 
-
     function manual_reset_forgotten_password($user_id = FALSE, $token = FALSE) {
         // If the 'Change Forgotten Password' form has been submitted, then update the users password.
         if ($this->input->post()) {
@@ -157,6 +184,14 @@ class Auth extends CI_Controller {
         }
         $this->Common_model->select_update('user_accounts', $user_data, array('uacc_id' => $user_id));
         die(json_encode(true));
+    }
+
+    function get_record() {
+        $table_name = $this->input->post('table_name');
+        $id = $this->input->post('id');
+        $table_coloum = $this->input->post('table_coloum');
+        $data = $this->Common_model->select_where_row($table_name, array($table_coloum => $id));
+        die(json_encode($data));
     }
 
 }

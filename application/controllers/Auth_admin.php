@@ -38,7 +38,7 @@ class Auth_admin extends CI_Controller {
         return $this->data;
     }
 
-    function dashboard() {        
+    function dashboard() {
         $this->data['message'] = $this->session->flashdata('message');
         $this->data = $this->include_files();
         $this->load->view('admin/dashboard', $this->data);
