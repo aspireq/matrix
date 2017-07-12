@@ -51,6 +51,7 @@ class Common_model extends CI_Model {
         $get_level = $this->select_where('user_accounts', array('plan' => $plan_id));
         $get_user = '';
         $commission_percentage = '';
+        $get_username = '';
         foreach ($get_level as $user) {
             if ($get_user == "") {
                 $get_count = $this->select_where('user_commission', array('user_id' => $user->uacc_id));
@@ -69,24 +70,24 @@ class Common_model extends CI_Model {
                 }
                 if (count($get_count) < 340) {
                     $get_user = $user->uacc_id;
+                    $get_username = $user->uacc_username;
                 }
             }
         }
-
         if ($get_user != "") {
             $commission = ($plan_info->plan_amount * $commission_percentage) / 100;
             $commission_data = array(
                 'user_id' => $get_user,
                 'for_user_id' => $user_id,
                 'commission_amount' => $commission,
-                'plan_id' => $plan_id
-            );
+                'plan_id' => $plan_id);
             $this->insert('user_commission', $commission_data);
-            $userinfo = $this->select_where('user_accounts', array('uacc_id' => $get_user));
-            $final_earnings = ($userinfo->earnings) + 1500;
-            
-            $this->select_update('user_accounts', array('earnings' => $final_earnings), array('uacc_id' => $get_user));
-            echo $this->db->last_query();die();
+            $earning_data = array(
+                'user_id' => $get_user,
+                'type' => 'Credit',
+                'subject' => 'User Matrix Commission For the User',
+                'amount' => $commission);
+            $this->update_user_earnings($earning_data, $get_user, $commission, '+');
         } else {
             echo "All users are full!";
             die();
@@ -94,6 +95,16 @@ class Common_model extends CI_Model {
         return true;
     }
 
-}
+    function update_user_earnings($earnings_data, $user_id, $amount, $amount_type) {
+        $userinfo = $this->select_where_row('user_accounts', array('uacc_id' => $user_id));
+        if ($amount_type == '+') {
+            $final_earnings = $userinfo->earnings + $amount;
+        } else if ($amount_type == '-') {
+            $final_earnings = $userinfo->earnings - $amount;
+        }
+        $this->select_update('user_accounts', array('earnings' => $final_earnings), array('uacc_id' => $user_id));
+        $this->insert('earning_history', $earnings_data);
+        return true;
+    }
 
-//SELECT `uacc_id`,`uacc_group_fk`,`uacc_email`,`uacc_username`,`plan`,`amount_paid`,`level`,`earnings` FROM `user_accounts` 
+}
