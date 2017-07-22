@@ -9,4 +9,7 @@
     <link rel="stylesheet" href="<?php echo base_url(); ?>include_files/css/mob.css">
     <link rel="stylesheet" href="<?php echo base_url(); ?>include_files/css/bootstrap.css">
     <link rel="stylesheet" href="<?php echo base_url(); ?>include_files/css/materialize.css" />
+    <link rel="stylesheet" href="<?php echo base_url(); ?>include_files/css/datepicker.css" />
+    <style href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.css.map"></style>
+    <style href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.standalone.css"></style>
 </head>

@@ -33,7 +33,8 @@ class Common_model extends CI_Model {
 
     function insert($table, $data) {
         $query = $this->db->insert($table, $data);
-        return $query;
+        $id = $this->db->insert_id();
+        return $id;
     }
 
     function delete_where($tbl, $where) {
@@ -46,7 +47,7 @@ class Common_model extends CI_Model {
         return $this->db->insert_id();
     }
 
-    function get_matrixuser($user_id, $plan_id) {
+    function get_matrixuser($user_id, $plan_id, $earning_id) {
         $plan_info = $this->select_where_row('matrix_plans', array('id' => $plan_id));
         $get_level = $this->select_where('user_accounts', array('plan' => $plan_id));
         $get_user = '';
@@ -54,21 +55,28 @@ class Common_model extends CI_Model {
         $get_username = '';
         foreach ($get_level as $user) {
             if ($get_user == "") {
-                $get_count = $this->select_where('user_commission', array('user_id' => $user->uacc_id));
-                if (count($get_count) < 4) {
+                $get_count = $this->select_where('earning_history', array('user_id' => $user->uacc_id));
+                if (count($get_count) >= 341 && count($get_count) < 681) {
+                    $get_counts = count($get_count) - 340;
+                } elseif (count($get_count) >= 681 && count($get_count) < 1021) {
+                    $get_counts = count($get_count) - 680;
+                } else {
+                    $get_counts = count($get_count);
+                }
+                if ($get_counts < 4) {
                     $commission_percentage = 20;
-                } else if (count($get_count) < 16) {
+                } else if ($get_counts < 16) {
                     $commission_percentage = 20;
-                } else if (count($get_count) < 64) {
+                } else if ($get_counts < 64) {
                     $commission_percentage = 5;
-                } else if (count($get_count) < 256) {
+                } else if ($get_counts < 256) {
                     $commission_percentage = 5;
                 }
-                if (count($get_count) == 340) {
+                if ($get_counts == 340 && $user->level < 3) {
                     $current_level = $this->db->get_where('user_accounts', array('uacc_id' => $user->uacc_id))->row();
                     $this->select_update('user_accounts', array('level' => $current_level->level + 1), array('uacc_id' => $user->uacc_id));
                 }
-                if (count($get_count) < 340) {
+                if ($get_counts < 340) {
                     $get_user = $user->uacc_id;
                     $get_username = $user->uacc_username;
                 }
@@ -86,24 +94,26 @@ class Common_model extends CI_Model {
                 'user_id' => $get_user,
                 'type' => 'Credit',
                 'subject' => 'User Matrix Commission For the User',
+                'commission_type' => 'Now No Type Of Commission Is Define',
                 'amount' => $commission);
-            $this->update_user_earnings($earning_data, $get_user, $commission, '+');
+            $this->update_user_earnings($earning_data, $get_user, $commission_data, '+', $earning_id);
         } else {
             echo "All users are full!";
             die();
         }
         return true;
     }
-
-    function update_user_earnings($earnings_data, $user_id, $amount, $amount_type) {
+    function update_user_earnings($earnings_data, $user_id, $commission_data, $amount_type, $earning_id) {
         $userinfo = $this->select_where_row('user_accounts', array('uacc_id' => $user_id));
         if ($amount_type == '+') {
-            $final_earnings = $userinfo->earnings + $amount;
+            $final_earnings = $userinfo->earnings + $earnings_data['commission_amount'];
         } else if ($amount_type == '-') {
-            $final_earnings = $userinfo->earnings - $amount;
+            $final_earnings = $userinfo->earnings - $earnings_data['commission_amount'];
         }
         $this->select_update('user_accounts', array('earnings' => $final_earnings), array('uacc_id' => $user_id));
-        $this->insert('earning_history', $earnings_data);
+        $this->select_update('user_accounts', array('reffrence_id' => $user_id), array('uacc_id' => $commission_data['for_user_id']));
+
+        $this->select_update('earning_history', $earnings_data, array('id' => $earning_id));
         return true;
     }
 

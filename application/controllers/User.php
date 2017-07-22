@@ -25,6 +25,7 @@ class User extends CI_Controller {
         if ($this->flexi_auth->is_logged_in()) {
             $this->data['userinfo'] = $this->userinfo = $this->flexi_auth->get_user_by_identity_row_array();
             $this->user_id = $this->data['userinfo']['uacc_id'];
+            $this->user_name = $this->data['userinfo']['uacc_username'];
         }
     }
 
@@ -50,6 +51,93 @@ class User extends CI_Controller {
         $this->data = $this->include_files();
         $this->load->view('users', $this->data);
     }
+
+//leads magagement
+
+    function leads() {
+        $message = $this->data['message'] = ($this->session->userdata('message')) ? $this->session->userdata('message') : '';
+        $this->data['error_class'] = 'alert-success';
+        $this->session->unset_userdata('message');
+        $this->data = $this->include_files();
+        $this->load->view('leads', $this->data);
+    }
+
+    public function get_leads() {
+        $leads = $this->data['leads'] = $this->Admin_model->get_leadsinfo();
+        die($leads);
+    }
+
+    public function delete_leads($id) {
+        $result = $this->Common_model->delete_where('leads', array('id' => $id));
+        if ($result) {
+            $this->session->set_userdata('message', 'Info Delete Successfully');
+            redirect('user/leads');
+        }
+    }
+
+    public function add_leads($id = NULL) {
+        if ($this->input->post()) {
+            $this->load->library('form_validation');
+            $this->form_validation->set_rules('contact_person_name', 'Name', 'required');
+            $this->form_validation->set_rules('email', 'Email', 'required|valid_email');
+            $this->form_validation->set_rules('mobile', 'Mobile', 'required');
+            $this->form_validation->set_rules('date', 'Date', 'required');
+            $this->form_validation->set_rules('stage', 'Stage', 'required');
+            $this->form_validation->set_rules('subject', 'Subject', 'required');
+
+            $lead_data = array(
+                'contact_person_name' => $this->input->post('contact_person_name'),
+                'email' => $this->input->post('email'),
+                'mobile' => $this->input->post('mobile'),
+                'address' => $this->input->post('address'),
+                'description' => $this->input->post('description'),
+                'date' => $this->input->post('date'),
+                'source' => $this->input->post('source'),
+                'stage' => $this->input->post('stage'),
+                'subject' => $this->input->post('subject')
+            );
+
+            $mail = $this->input->post('email');
+            if ($this->form_validation->run()) {
+                if ($this->input->post('add')) {
+                    $getdata = $this->Common_model->select_where_row('leads', array('email' => $this->input->post('email')));
+                    if (!$getdata) {
+                        $result = $this->Common_model->insert('leads', $lead_data);
+                        if ($result) {
+                            $this->data['message'] = 'Lead Info Add Successfully';
+                            $this->data['error_class'] = 'alert-success';
+
+                            $name = $this->input->post('contact_person_name');
+                            $email_id = $this->input->post('email');
+                            $data = $this->send_mail($name, $email_id);
+                            $email = $this->data['userinfo']['uacc_email'];
+                            $datas = $this->send_mail($this->user_name, $email);
+                        }
+                    } else {
+                        $this->data['message'] = 'This Info Already Available In Database';
+                        $this->data['error_class'] = 'alert-danger';
+                    }
+                } else {
+                    $result = $this->Common_model->select_update('leads', $lead_data, array('id' => $id));
+                    if ($result) {
+                        $this->data['message'] = 'Leads Info Update Successfully';
+                        $this->data['error_class'] = 'alert-success';
+                    }
+                }
+            } else {
+                $this->data['lead_info'] = $this->input->post();
+                $this->data['message'] = validation_errors();
+                $this->data['error_class'] = 'alert-danger';
+            }
+        }
+        if ($id != NULL) {
+            $lead_info = $this->data['lead_info'] = (array) $this->Common_model->select_where_row('leads', array('id' => $id));
+        }
+        $this->data = $this->include_files();
+        $this->load->view('add_leads', $this->data);
+    }
+
+// here end
 
     function add_user($user_id = null) {
         if ($this->input->post()) {
@@ -134,13 +222,28 @@ class User extends CI_Controller {
                 $this->form_validation->set_rules('plan_id', 'Plan', 'required');
                 $this->form_validation->set_rules('plan_amount', 'Plan Amount', 'required');
                 $this->form_validation->set_rules('amount_to_pay', 'Paying Amount', 'required');
+                $this->form_validation->set_rules('date_to_pay', 'Paying Date', 'required');
+                $this->form_validation->set_rules('mode_to_pay', 'Paying Mode', 'required');
+                $this->form_validation->set_rules('pay_id', 'Paying Id', 'required');
                 if ($this->form_validation->run()) {
                     $group_data = array(
                         'plan' => $this->input->post('plan_id'),
                         'amount_paid' => $this->input->post('amount_to_pay')
                     );
+                    $paydata = array(
+                        'user_id' => '',
+                        'type' => '',
+                        'subject' => 'User Matrix Commission For the User',
+                        'amount' => 0,
+                        'commission_type' => 0,
+                        'payment_date' => $this->input->post('date_to_pay'),
+                        'payment_mode' => $this->input->post('mode_to_pay'),
+                        'pay_id' => $this->input->post('pay_id'),
+                        'descriptions' => $this->input->post('dscriptions')
+                    );
+                    $earning_id = $this->Common_model->insert('earning_history', $paydata);
                     $this->Common_model->select_update('user_accounts', $group_data, array('uacc_id' => $this->user_id));
-                    $this->Common_model->get_matrixuser($this->user_id, $this->input->post('plan_id'));
+                    $this->Common_model->get_matrixuser($this->user_id, $this->input->post('plan_id'), $earning_id);
                     $this->data['message'] = "Plan Information Saved Successfully !";
                     $this->data['error_class'] = 'alert-success';
                 } else {
@@ -171,6 +274,26 @@ class User extends CI_Controller {
     function get_users() {
         $banks = $this->Admin_model->get_usersinfo($this->user_id);
         die($banks);
+    }
+
+/// send an email 
+
+    public function send_mail($name, $mail) {
+
+        $names = $this->data['names'] = $name;
+        $to_email = $mail;
+        $this->email->from('', 'Zero Gravity');
+        $this->email->to($to_email);
+        $this->email->subject('HTML');
+        if ($name == $this->user_name) {
+            $message = $this->load->view('mail2', $this->data, TRUE);
+        } else {
+            $message = $this->load->view('mail', $this->data, TRUE);
+        }
+        $this->email->message($message);
+
+        //Send mail 
+        $result = $this->email->send();
     }
 
 }

@@ -41,6 +41,15 @@
                     </ul>
                 </div>
             </li>
+            <!--            // here-->
+            <li><a href="javascript:void(0)" class="collapsible-header"><i class="fa fa-laptop" aria-hidden="true"></i>Leads</a>
+                <div class="collapsible-body left-sub-menu">
+                    <ul>
+                        <li><a href="<?php echo base_url(); ?>user/leads">All Leads</a></li>
+                        <li><a href="<?php echo base_url(); ?>user/add_leads">Add Leads</a></li>
+                    </ul>
+                </div>
+            </li>
         </ul>
     </div>
 </div>

@@ -69,7 +69,43 @@
                                                 <label for="amount_to_pay">Paying Amount</label>
                                             </div>
                                         </div>
-    <!--                                    <input type="hidden" name="edit_id" name="edit_id" value="<?php //echo (!empty($bankinfo) && $bankinfo['id'] != "") ? $bankinfo['id'] : '';                  ?>">-->
+
+                                        <!--                                        // here-->
+                                            <!--                                        <span>Payment Date</span>-->
+                                        <div class="row">
+                                            <div class="input-field col s12">
+                                                <input id="date_to_pay" name="date_to_pay" type="text" class="validate" readonly="true">
+                                                <label for="date_to_pay">Paying Date</label>
+                                            </div>
+                                        </div>
+
+        <!--                                        <span id="change">Payment Mode</span>-->
+                                        <div class="row">
+                                            <div class="input-field col s12">
+    <!--                                                <input id="mode_to_pay" name="mode_to_pay" type="text" class="validate" readonly="">-->
+                                                <select id="mode_to_pay" name="mode_to_pay" class="validate" readonly="true">
+                                                    <option id="select">select mode</option>
+                                                    <option id="cheque">Cheque</option>
+                                                    <option id="cash">Bank Tranfer</option>
+                                                </select>
+                                                <label for="mode_to_pay">Paying Mode</label>
+                                            </div>
+                                        </div>
+    <!--                                        <span class="common"></span>-->
+                                        <div class="row">
+                                            <div class="input-field col s12">
+                                                <input id="pay_id" name="pay_id" type="text" class="validate">
+                                                <label for="pay_id" class="common">Paying Id</label>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="input-field col s12">
+                                                <textarea name="dscriptions" class="validate"></textarea>
+                                                <label for="pay_id" class="">Dscriptions</label>
+                                            </div>
+                                        </div>
+                                        <!--end-->
+                                        <!--                                    <input type="hidden" name="edit_id" name="edit_id" value="<?php //echo (!empty($bankinfo) && $bankinfo['id'] != "") ? $bankinfo['id'] : '';                                                                        ?>">-->
                                         <div class="row">
                                             <div class="input-field col s12">
                                                 <input type="submit" class="waves-effect waves-light btn-large" value="Pay Now" name="add_new_bank" id="add_new_bank">
@@ -88,7 +124,33 @@
         <script src="<?php echo base_url(); ?>include_files/js/bootstrap.min.js"></script>        
         <script src="<?php echo base_url(); ?>include_files/js/materialize.min.js"></script>
         <script src="<?php echo base_url(); ?>include_files/js/custom.js"></script>
+        <script src="<?php echo base_url(); ?>include_files/js/bootstrap-datepicker.js"></script> 
+
         <script>
+
+                                                    $(document).ready(function () {
+
+                                                    });
+                                                    $(function () {
+                                                        $("#date_to_pay").datepicker(
+                                                                {
+                                                                    format: "yyyy-mm-dd",
+                                                                    autoclose: true,
+                                                                });
+                                                    });
+
+                                                    $(function () {
+                                                        $("select#mode_to_pay").change(function () {
+                                                            var pay_mode = $("#mode_to_pay option:selected").val();
+                                                            if (pay_mode == 'Cheque') {
+                                                                $('.common').html('Cheque No :-');
+                                                            }
+                                                            if (pay_mode == 'Bank Tranfer') {
+                                                                $('.common').html('Transaction Id :-');
+                                                            }
+                                                        });
+                                                    }
+                                                    );
                                                     function plans() {
                                                         var selected_plan = $('#plan_id').val();
                                                         $.ajax({

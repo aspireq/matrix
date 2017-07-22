@@ -27,5 +27,12 @@ class Admin_model extends CI_Model {
         $this->datatables->where('status', 1);
         return $this->datatables->generate();
     } 
-
+  function get_leadsinfo() {
+        $this->load->library('Datatables');
+        $this->datatables->select('leads.id as id,leads.created_date as created_date,leads.contact_person_name as contact_person_name,leads.email as email,leads.mobile as mobile,leads.address as address,leads.description as description,leads.date as date ,leads.source as source,leads.subject as subject ,leads.status as status,leads.stage as stage');
+        $this->datatables->from('leads');
+//        $this->datatables->where('user_id', $user_id);
+//        $this->datatables->where('status', 1);
+        return $this->datatables->generate();
+    }
 }
